@@ -1182,8 +1182,7 @@ function window_manager:AddWindow(title, settings)
             local tab_button = prefabs:FindFirstChild("TabButton"):Clone()
             tab_button.Parent = tab_buttons_container
             tab_button.Text = tab_name
-            tab_button.AutomaticSize = Enum.AutomaticSize.X
-            tab_button.Size = UDim2.new(0, 0, 0, 18)
+            tab_button.Size = UDim2.new(0, get_text_width(tab_button) + 20, 0, 18)
             tab_button.ZIndex = tab_button.ZIndex + window_count * 10
             tab_button.BackgroundTransparency = 1
             local button_background = tab_button:GetChildren()[1]
@@ -1374,8 +1373,7 @@ function window_manager:AddWindow(title, settings)
                     local scroller = tab_content:FindFirstChild("TabScroller")
                     button.Parent = scroller or tab_content
                     button.Text = name
-                    button.AutomaticSize = Enum.AutomaticSize.X
-                    button.Size = UDim2.new(0, 0, 0, 20)
+                    button.Size = UDim2.new(0, get_text_width(button) + 30, 0, 20)
                     button.ZIndex = button.ZIndex + window_count * 10
                     local button_background = button:GetChildren()[1]
                     button_background.ZIndex = button_background.ZIndex + window_count * 10
