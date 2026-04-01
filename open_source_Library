@@ -156,7 +156,7 @@ top_gradient.Parent = title_bar
 top_gradient.BackgroundColor3 = Color3.new(1, 1, 1)
 top_gradient.BackgroundTransparency = 1
 top_gradient.Position = UDim2.new(0, 0, 0, -5)
-top_gradient.Size = UDim2.new(1, 0, 0, 10)
+top_gradient.Size = UDim2.new(0, 0, 0, 10)
 top_gradient.Image = "rbxassetid://2851926732"
 top_gradient.ImageColor3 = Color3.new(0.160784, 0.290196, 0.478431)
 top_gradient.ScaleType = Enum.ScaleType.Slice
@@ -228,7 +228,7 @@ textbox_background.BackgroundColor3 = Color3.new(1, 1, 1)
 textbox_background.BackgroundTransparency = 1
 textbox_background.Size = UDim2.new(1, 0, 1, 0)
 textbox_background.Image = "rbxassetid://2851929490"
-textbox_background.ImageColor3 = Color3.new(0.203922, 0.207843, 0.219608)
+textbox_background.ImageColor3 = Color3.new(0.129412, 0.133333, 0.141176)
 textbox_background.ScaleType = Enum.ScaleType.Slice
 textbox_background.SliceCenter = Rect.new(4, 4, 4, 4)
 
@@ -869,8 +869,15 @@ local function get_property_safe(object, property)
     end)
     return success and value
 end
-local function get_text_width(text_label)
-    return text_label.TextBounds.X + 15
+local function get_text_width(text)
+    local temp = Instance.new("TextLabel")
+    temp.Font = Enum.Font.FredokaOne
+    temp.TextSize = 14
+    temp.Text = text
+    temp.Parent = prefabs
+    local width = temp.TextBounds.X
+    temp:Destroy()
+    return width + 20
 end
 local function get_mouse_position()
     return Vector2.new(UserInputService:GetMouseLocation().X + 1, UserInputService:GetMouseLocation().Y - 35)
@@ -934,9 +941,6 @@ function window_manager:AddWindow(title, settings)
     window:FindFirstChild("Title").Text = title
     window.Size = UDim2.new(0, settings.min_size.X, 0, settings.min_size.Y)
     window.ZIndex = window.ZIndex + window_count * 10
-    local window_corner = Instance.new("UICorner")
-    window_corner.CornerRadius = UDim.new(0, 8)
-    window_corner.Parent = window
     do
         local title_bar = window:FindFirstChild("Bar")
         local title_label = title_bar:FindFirstChild("Title")
@@ -953,14 +957,8 @@ function window_manager:AddWindow(title, settings)
         if top_gradient then
             top_gradient:Destroy()
         end
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 5)
-        corner.Parent = title_bar
         if toggle_button then
             toggle_button.Position = UDim2.new(0, 5, 0, vertical_padding)
-            local btn_corner = Instance.new("UICorner")
-            btn_corner.CornerRadius = UDim.new(0, 4)
-            btn_corner.Parent = toggle_button
         end
         if title_label then
             local left_padding = 25
@@ -990,24 +988,10 @@ function window_manager:AddWindow(title, settings)
         sidebar.CanvasSize = UDim2.new(0, 0, 0, 0)
         sidebar.ScrollBarThickness = 3
         sidebar.ScrollBarImageColor3 = Color3.fromRGB(70, 70, 70)
-        local sidebar_corner = Instance.new("UICorner")
-        sidebar_corner.CornerRadius = UDim.new(0, 6)
-        sidebar_corner.Parent = sidebar
-        local search_box = prefabs:FindFirstChild("TextBox"):Clone()
-        search_box.Parent = sidebar
-        search_box.Size = UDim2.new(1, -12, 0, 28)
-        search_box.PlaceholderText = "🔍 Search..."
-        search_box.Text = ""
-        search_box.ClearTextOnFocus = false
-        search_box.BackgroundTransparency = 0.6
-        local search_bg = search_box:FindFirstChild("TextBox_Roundify_4px")
-        if search_bg then
-            search_bg.ImageColor3 = Color3.new(0.12, 0.13, 0.14)
-        end
         local sidebar_layout = Instance.new("UIListLayout")
         sidebar_layout.Parent = sidebar
         sidebar_layout.SortOrder = Enum.SortOrder.LayoutOrder
-        sidebar_layout.Padding = UDim.new(0, 8)
+        sidebar_layout.Padding = UDim.new(0, 4)
         sidebar_layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
         local content_area = Instance.new("Frame")
         content_area.Name = "ContentArea"
@@ -1016,30 +1000,13 @@ function window_manager:AddWindow(title, settings)
         content_area.BackgroundTransparency = 1
         content_area.Position = UDim2.new(0, 135, 0, 0)
         content_area.Size = UDim2.new(1, -140, 1, -10)
-        content_area.ClipsDescendants = false
-        local content_holder = Instance.new("ScrollingFrame")
+        content_area.ClipsDescendants = true
+        local content_holder = Instance.new("Frame")
         content_holder.Name = "TabContentHolder"
         content_holder.Parent = content_area
         content_holder.BackgroundTransparency = 1
         content_holder.Size = UDim2.new(1, 0, 1, 0)
-        content_holder.CanvasSize = UDim2.new(0, 0, 0, 0)
-        content_holder.ScrollBarThickness = 4
-        content_holder.BorderSizePixel = 0
-        content_holder.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        content_holder.CanvasSize = UDim2.new(0, 0, 0, 0)
-        local search_results_container = Instance.new("ScrollingFrame")
-        search_results_container.Name = "SearchResults"
-        search_results_container.Parent = content_area
-        search_results_container.BackgroundTransparency = 1
-        search_results_container.Size = UDim2.new(1, 0, 1, 0)
-        search_results_container.CanvasSize = UDim2.new(0, 0, 0, 0)
-        search_results_container.ScrollBarThickness = 4
-        search_results_container.BorderSizePixel = 0
-        search_results_container.Visible = false
-        local results_layout = Instance.new("UIListLayout")
-        results_layout.Parent = search_results_container
-        results_layout.SortOrder = Enum.SortOrder.LayoutOrder
-        results_layout.Padding = UDim.new(0, 8)
+        content_holder.ClipsDescendants = true
         local function update_sidebar_canvas()
             local total_height = sidebar_layout.AbsoluteContentSize.Y
             sidebar.CanvasSize = UDim2.new(0, 0, 0, total_height + 10)
@@ -1136,187 +1103,7 @@ function window_manager:AddWindow(title, settings)
         local main_container = window:FindFirstChild("MainContainer")
         local sidebar = main_container:FindFirstChild("Sidebar")
         local content_holder = main_container:FindFirstChild("ContentArea"):FindFirstChild("TabContentHolder")
-        local search_results_container = main_container:FindFirstChild("ContentArea"):FindFirstChild("SearchResults")
-        local search_box = sidebar:FindFirstChildOfClass("TextBox")
         local current_tab = nil
-        local all_controls = {}
-        local tab_names = {}
-        local function show_search_results(query)
-            for _, child in ipairs(search_results_container:GetChildren()) do
-                if child:IsA("GuiObject") and child ~= results_layout then
-                    child:Destroy()
-                end
-            end
-            content_holder.Visible = false
-            search_results_container.Visible = true
-            if query == "" then
-                search_results_container.Visible = false
-                content_holder.Visible = true
-                if current_tab then
-                    current_tab.TabContent.Visible = true
-                end
-                return
-            end
-            local matches = {}
-            for _, control in ipairs(all_controls) do
-                if string.find(string.lower(control.name), string.lower(query)) then
-                    table.insert(matches, control)
-                end
-            end
-            if #matches == 0 then
-                local no_results = prefabs:FindFirstChild("Label"):Clone()
-                no_results.Text = "No results found"
-                no_results.TextColor3 = Color3.fromRGB(150, 150, 150)
-                no_results.Size = UDim2.new(1, -20, 0, 20)
-                no_results.Parent = search_results_container
-                return
-            end
-            local grouped = {}
-            for _, match in ipairs(matches) do
-                if not grouped[match.tab_name] then
-                    grouped[match.tab_name] = {}
-                end
-                table.insert(grouped[match.tab_name], match)
-            end
-            for tab_name, controls_in_tab in pairs(grouped) do
-                local tab_label = prefabs:FindFirstChild("Label"):Clone()
-                tab_label.Text = "🔹 " .. tab_name
-                tab_label.TextColor3 = settings.main_color
-                tab_label.TextSize = 14
-                tab_label.Font = Enum.Font.FredokaOne
-                tab_label.Size = UDim2.new(1, -20, 0, 24)
-                tab_label.Parent = search_results_container
-                for _, match in ipairs(controls_in_tab) do
-                    local clone
-                    if match.type == "button" then
-                        clone = prefabs:FindFirstChild("Button"):Clone()
-                        clone.Text = match.name
-                        clone.Size = UDim2.new(0, get_text_width(clone), 0, 20)
-                        clone.MouseButton1Click:Connect(match.callback)
-                    elseif match.type == "switch" then
-                        clone = prefabs:FindFirstChild("Switch"):Clone()
-                        clone:FindFirstChild("Title").Text = match.name
-                        clone.Text = match.enabled and utf8.char(10003) or ""
-                        clone.MouseButton1Click:Connect(function()
-                            match.enabled = not match.enabled
-                            clone.Text = match.enabled and utf8.char(10003) or ""
-                            pcall(match.callback, match.enabled)
-                        end)
-                    elseif match.type == "slider" then
-                        clone = prefabs:FindFirstChild("Slider"):Clone()
-                        clone:FindFirstChild("Title").Text = match.name
-                        local indicator = clone:FindFirstChild("Indicator")
-                        local value_label = clone:FindFirstChild("Value")
-                        indicator.Size = UDim2.new(match.value / match.range.max, 0, 0, 20)
-                        value_label.Text = tostring(match.value)
-                        local dragging = false
-                        local drag_conn
-                        clone.MouseButton1Down:Connect(function()
-                            dragging = true
-                            drag_conn = RunService.Heartbeat:Connect(function()
-                                if not dragging then
-                                    if drag_conn then drag_conn:Disconnect() end
-                                    return
-                                end
-                                local mouse_pos = get_mouse_position()
-                                local perc = math.clamp((mouse_pos.X - clone.AbsolutePosition.X) / clone.AbsoluteSize.X, 0, 1)
-                                indicator.Size = UDim2.new(perc, 0, 0, 20)
-                                local val = math.floor(match.range.min + (match.range.max - match.range.min) * perc)
-                                value_label.Text = tostring(val)
-                                match.value = val
-                                pcall(match.callback, val)
-                            end)
-                        end)
-                        UserInputService.InputEnded:Connect(function(input)
-                            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                                dragging = false
-                                if drag_conn then drag_conn:Disconnect() end
-                            end
-                        end)
-                    elseif match.type == "keybind" then
-                        clone = prefabs:FindFirstChild("Keybind"):Clone()
-                        clone:FindFirstChild("Title").Text = "  " .. match.name
-                        local input_field = clone:FindFirstChild("Input")
-                        input_field.Text = match.display_name
-                        input_field.MouseButton1Click:Connect(function()
-                            if binding_state.binding then return end
-                            input_field.Text = "..."
-                            binding_state.binding = true
-                            local next_input = UserInputService.InputBegan:Wait()
-                            local key_name_map = {
-                                RightControl = "RightCtrl", LeftControl = "LeftCtrl",
-                                LeftShift = "LShift", RightShift = "RShift",
-                                MouseButton1 = "Mouse1", MouseButton2 = "Mouse2"
-                            }
-                            local display = key_name_map[next_input.KeyCode.Name] or next_input.KeyCode.Name
-                            input_field.Text = display
-                            match.key = next_input.KeyCode
-                            binding_state.binding = false
-                            pcall(match.callback, next_input.KeyCode)
-                        end)
-                    elseif match.type == "dropdown" then
-                        clone = prefabs:FindFirstChild("Dropdown"):Clone()
-                        clone.Text = "      " .. match.name
-                        local dropdown_box = clone:FindFirstChild("Box")
-                        local dropdown_scrolling = dropdown_box:FindFirstChild("Objects")
-                        for _, opt in ipairs(match.options) do
-                            local opt_btn = prefabs:FindFirstChild("DropdownButton"):Clone()
-                            opt_btn.Text = "      " .. opt
-                            opt_btn.Parent = dropdown_scrolling
-                            opt_btn.MouseButton1Click:Connect(function()
-                                clone.Text = "      [ " .. opt .. " ]"
-                                pcall(match.callback, opt)
-                                dropdown_box:TweenSize(UDim2.new(1, 0, 0, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.1, true)
-                            end)
-                        end
-                        clone.MouseButton1Click:Connect(function()
-                            local open = clone:GetAttribute("Open")
-                            if open then
-                                dropdown_box:TweenSize(UDim2.new(1, 0, 0, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.1, true)
-                                clone:SetAttribute("Open", false)
-                            else
-                                dropdown_box:TweenSize(UDim2.new(1, 0, 0, 150), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.1, true)
-                                clone:SetAttribute("Open", true)
-                            end
-                        end)
-                    elseif match.type == "colorpicker" then
-                        clone = prefabs:FindFirstChild("ColorPicker"):Clone()
-                        local sample = clone:FindFirstChild("Sample")
-                        sample.ImageColor3 = match.color
-                        clone:FindFirstChild("Saturation").ImageColor3 = match.color
-                        local function update_color()
-                            pcall(match.callback, match.color)
-                        end
-                    else
-                        clone = prefabs:FindFirstChild("Label"):Clone()
-                        clone.Text = match.name
-                        clone.TextColor3 = Color3.new(1,1,1)
-                    end
-                    if clone then
-                        clone.Parent = search_results_container
-                        clone.ZIndex = clone.ZIndex + window_count * 10
-                        local spacer = prefabs:FindFirstChild("Label"):Clone()
-                        spacer.Text = ""
-                        spacer.Size = UDim2.new(1, -20, 0, 8)
-                        spacer.BackgroundTransparency = 1
-                        spacer.Parent = search_results_container
-                    end
-                end
-                local blank = prefabs:FindFirstChild("Label"):Clone()
-                blank.Text = ""
-                blank.Size = UDim2.new(1, -20, 0, 12)
-                blank.BackgroundTransparency = 1
-                blank.Parent = search_results_container
-            end
-        end
-        search_box.FocusLost:Connect(function()
-            show_search_results(search_box.Text)
-        end)
-        search_box:GetPropertyChangedSignal("Text"):Connect(function()
-            if search_box:IsFocused() then
-                show_search_results(search_box.Text)
-            end
-        end)
         local function select_tab(tab_button, tab_content)
             if dropdown_open then
                 return
@@ -1329,7 +1116,7 @@ function window_manager:AddWindow(title, settings)
                 current_tab.TextColor3 = Color3.fromRGB(200, 200, 200)
                 current_tab.BackgroundTransparency = 1
             end
-            for _, child in ipairs(content_holder:GetChildren()) do
+            for index, child in ipairs(content_holder:GetChildren()) do
                 if child:IsA("Frame") then
                     child.Visible = false
                 end
@@ -1351,22 +1138,16 @@ function window_manager:AddWindow(title, settings)
             outline.Parent = tab_button
             tab_button.TextColor3 = Color3.new(1, 1, 1)
             tab_button.BackgroundTransparency = 0.9
-            search_results_container.Visible = false
-            content_holder.Visible = true
         end
         function window_functions:AddTab(tab_name)
             local tab_functions = {}
             tab_name = tostring(tab_name or "New Tab")
-            table.insert(tab_names, tab_name)
             local tab_button = prefabs:FindFirstChild("TabButton"):Clone()
             tab_button.Parent = sidebar
             tab_button.Text = "   " .. tab_name
             tab_button.Size = UDim2.new(1, -12, 0, 28)
             tab_button.ZIndex = tab_button.ZIndex + window_count * 10
             tab_button.BackgroundTransparency = 1
-            local corner = Instance.new("UICorner")
-            corner.CornerRadius = UDim.new(0, 6)
-            corner.Parent = tab_button
             tab_button.TextColor3 = Color3.fromRGB(200, 200, 200)
             tab_button.TextSize = 13
             tab_button.Font = Enum.Font.FredokaOne
@@ -1397,63 +1178,33 @@ function window_manager:AddWindow(title, settings)
             if layout then
                 layout.Parent = tab_content
             end
-            local scroller = Instance.new("ScrollingFrame")
-            scroller.Name = "TabScroller"
-            scroller.Parent = tab_content
-            scroller.Size = UDim2.new(1, 0, 1, 0)
-            scroller.BackgroundTransparency = 1
-            scroller.BorderSizePixel = 0
-            scroller.ScrollBarThickness = 4
-            scroller.CanvasSize = UDim2.new(0, 0, 0, 0)
-            scroller.ZIndex = tab_content.ZIndex
-            scroller.ScrollBarImageColor3 = Color3.fromRGB(50, 50, 50)
-            local content_layout = Instance.new("UIListLayout")
-            content_layout.Parent = scroller
-            content_layout.SortOrder = Enum.SortOrder.LayoutOrder
-            content_layout.Padding = UDim.new(0, 8)
-            local function update_canvas()
-                local total = content_layout.AbsoluteContentSize.Y
-                scroller.CanvasSize = UDim2.new(0, 0, 0, total + 10)
-            end
-            content_layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(update_canvas)
-            update_canvas()
-            local function add_control_record(control_type, name, callback, extra)
-                table.insert(all_controls, {
-                    type = control_type,
-                    name = name,
-                    callback = callback,
-                    tab_name = tab_name,
-                    instance = nil,
-                    extra = extra or {}
-                })
-            end
             function tab_functions:Show()
                 select_tab(tab_button, tab_content)
             end
             tab_button.MouseButton1Click:Connect(function()
                 select_tab(tab_button, tab_content)
             end)
-            if #sidebar:GetChildren() - (search_box and 1 or 0) == 2 then
+            if #sidebar:GetChildren() == 2 then
                 select_tab(tab_button, tab_content)
             end
             do
                 function tab_functions:AddLabel(text)
                     text = tostring(text or "New Label")
                     local label = prefabs:FindFirstChild("Label"):Clone()
-                    label.Parent = scroller
+                    label.Parent = tab_content
                     label.Text = text
-                    label.Size = UDim2.new(0, get_text_width(label), 0, 20)
+                    label.Size = UDim2.new(0, get_text_width(text), 0, 20)
                     label.ZIndex = label.ZIndex + window_count * 10
-                    add_control_record("label", text, nil)
                     return label
                 end
                 function tab_functions:AddButton(name, callback)
                     name = tostring(name or "New Button")
                     callback = typeof(callback) == "function" and callback or function() end
                     local button = prefabs:FindFirstChild("Button"):Clone()
-                    button.Parent = scroller
+                    button.Parent = tab_content
                     button.Text = name
-                    button.Size = UDim2.new(0, get_text_width(button), 0, 20)
+                    local width = get_text_width(name)
+                    button.Size = UDim2.new(0, width, 0, 20)
                     button.ZIndex = button.ZIndex + window_count * 10
                     local button_background = button:GetChildren()[1]
                     button_background.ZIndex = button_background.ZIndex + window_count * 10
@@ -1464,7 +1215,6 @@ function window_manager:AddWindow(title, settings)
                         create_ripple_effect(button, Mouse.X, Mouse.Y)
                         pcall(callback)
                     end)
-                    add_control_record("button", name, callback)
                     return button
                 end
                 function tab_functions:AddSwitch(name, callback)
@@ -1472,7 +1222,7 @@ function window_manager:AddWindow(title, settings)
                     name = tostring(name or "New Switch")
                     callback = typeof(callback) == "function" and callback or function() end
                     local switch = prefabs:FindFirstChild("Switch"):Clone()
-                    switch.Parent = scroller
+                    switch.Parent = tab_content
                     switch:FindFirstChild("Title").Text = name
                     switch:FindFirstChild("Title").ZIndex = switch:FindFirstChild("Title").ZIndex + window_count * 10
                     switch.ZIndex = switch.ZIndex + window_count * 10
@@ -1491,7 +1241,6 @@ function window_manager:AddWindow(title, settings)
                         switch.Text = enabled and utf8.char(10003) or ""
                         pcall(callback, enabled)
                     end
-                    add_control_record("switch", name, callback, {enabled = enabled})
                     return switch_data, switch
                 end
                 function tab_functions:AddTextBox(placeholder, callback, options)
@@ -1501,15 +1250,15 @@ function window_manager:AddWindow(title, settings)
                     options.clear = options.clear == true
                     local textbox = prefabs:FindFirstChild("TextBox"):Clone()
                     textbox.Size = UDim2.new(0.5, -5, 0, 20)
-                    textbox.Parent = scroller
+                    textbox.Parent = tab_content
                     textbox.PlaceholderText = placeholder
                     textbox.ZIndex = textbox.ZIndex + window_count * 10
                     local textbox_background = textbox:GetChildren()[1]
                     textbox_background.ZIndex = textbox_background.ZIndex + window_count * 10
                     textbox_background.ImageTransparency = settings.title_bar_transparency or 0
-                    apply_gradient(textbox_background, settings.title_bar, 0)
+                    textbox_background.ImageColor3 = Color3.fromRGB(40, 40, 45)
                     textbox.TextColor3 = Color3.new(1, 1, 1)
-                    textbox.PlaceholderColor3 = Color3.fromRGB(200, 200, 200)
+                    textbox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
                     textbox.FocusLost:Connect(function(enter_pressed)
                         if enter_pressed and #textbox.Text > 0 then
                             pcall(callback, textbox.Text)
@@ -1518,7 +1267,6 @@ function window_manager:AddWindow(title, settings)
                             end
                         end
                     end)
-                    add_control_record("textbox", placeholder, callback)
                     return textbox
                 end
                 function tab_functions:AddSlider(name, callback, range)
@@ -1530,7 +1278,7 @@ function window_manager:AddWindow(title, settings)
                     range.max = range.max or 100
                     range.readonly = range.readonly or false
                     local slider = prefabs:FindFirstChild("Slider"):Clone()
-                    slider.Parent = scroller
+                    slider.Parent = tab_content
                     slider.ZIndex = slider.ZIndex + window_count * 10
                     local title = slider:FindFirstChild("Title")
                     local indicator = slider:FindFirstChild("Indicator")
@@ -1599,7 +1347,6 @@ function window_manager:AddWindow(title, settings)
                         pcall(callback, actual_value)
                     end
                     slider_data:Set(range.min)
-                    add_control_record("slider", name, callback, {range = range, value = range.min})
                     return slider_data, slider
                 end
                 function tab_functions:AddKeybind(name, callback, options)
@@ -1615,13 +1362,16 @@ function window_manager:AddWindow(title, settings)
                     input_field.ZIndex = input_field.ZIndex + window_count * 10
                     input_field:GetChildren()[1].ZIndex = input_field:GetChildren()[1].ZIndex + window_count * 10
                     title.ZIndex = title.ZIndex + window_count * 10
-                    keybind.Parent = scroller
+                    keybind.Parent = tab_content
                     title.Text = "  " .. name
-                    keybind.Size = UDim2.new(0, get_text_width(title) + 80, 0, 20)
+                    keybind.Size = UDim2.new(0, get_text_width(name) + 80, 0, 20)
                     local key_name_map = {
-                        RightControl = "RightCtrl", LeftControl = "LeftCtrl",
-                        LeftShift = "LShift", RightShift = "RShift",
-                        MouseButton1 = "Mouse1", MouseButton2 = "Mouse2"
+                        RightControl = "RightCtrl",
+                        LeftControl = "LeftCtrl",
+                        LeftShift = "LShift",
+                        RightShift = "RShift",
+                        MouseButton1 = "Mouse1",
+                        MouseButton2 = "Mouse2"
                     }
                     local current_key = options.standard
                     function keybind_data:SetKeybind(key)
@@ -1650,7 +1400,6 @@ function window_manager:AddWindow(title, settings)
                         local next_input = UserInputService.InputBegan:Wait()
                         keybind_data:SetKeybind(next_input.KeyCode)
                     end)
-                    add_control_record("keybind", name, callback, {key = current_key, display = input_field.Text})
                     return keybind_data, keybind
                 end
                 function tab_functions:AddDropdown(name, callback)
@@ -1672,13 +1421,10 @@ function window_manager:AddWindow(title, settings)
                     apply_gradient(background, settings.title_bar, 0)
                     dropdown_box.ImageTransparency = settings.background_transparency or 0.1
                     apply_gradient(dropdown_box, settings.background, 0)
-                    local corner = Instance.new("UICorner")
-                    corner.CornerRadius = UDim.new(0, 6)
-                    corner.Parent = dropdown_box
                     dropdown_scrolling.BackgroundTransparency = 1
                     dropdown_scrolling.Position = UDim2.new(0, 0, 0, 0)
                     dropdown_scrolling.Size = UDim2.new(1, 0, 1, 0)
-                    dropdown.Parent = scroller
+                    dropdown.Parent = tab_content
                     dropdown.Text = "      " .. name
                     dropdown_box.Size = UDim2.new(1, 0, 0, 0)
                     dropdown_box.Position = UDim2.new(0, 0, 0, 25)
@@ -1730,11 +1476,9 @@ function window_manager:AddWindow(title, settings)
                             tween_object(indicator, {Rotation = -90}, settings.tween_time)
                         end
                     end)
-                    local dropdown_options = {}
                     function dropdown_data:Add(option_name)
                         local option_data = {}
                         option_name = tostring(option_name or "New Object")
-                        table.insert(dropdown_options, option_name)
                         local option_button = prefabs:FindFirstChild("DropdownButton"):Clone()
                         option_button.Parent = dropdown_scrolling
                         option_button.Text = "      " .. option_name
@@ -1793,12 +1537,6 @@ function window_manager:AddWindow(title, settings)
                         end)
                         function option_data:Remove()
                             option_button:Destroy()
-                            for i, opt in ipairs(dropdown_options) do
-                                if opt == option_name then
-                                    table.remove(dropdown_options, i)
-                                    break
-                                end
-                            end
                         end
                         return option_button, option_data
                     end
@@ -1806,12 +1544,6 @@ function window_manager:AddWindow(title, settings)
                         local option = dropdown_scrolling:FindFirstChild(option_name)
                         if option then
                             option:Destroy()
-                            for i, opt in ipairs(dropdown_options) do
-                                if opt == option_name then
-                                    table.remove(dropdown_options, i)
-                                    break
-                                end
-                            end
                             if dropdown_data.currentSelection == option_name then
                                 local first_option = dropdown_scrolling:GetChildren()[1]
                                 local default_text = first_option and first_option.Text or "No Selection"
@@ -1821,14 +1553,13 @@ function window_manager:AddWindow(title, settings)
                             end
                         end
                     end
-                    add_control_record("dropdown", name, callback, {options = dropdown_options})
                     return dropdown_data, dropdown
                 end
                 function tab_functions:AddColorPicker(callback)
                     local color_picker_data = {}
                     callback = typeof(callback) == "function" and callback or function() end
                     local color_picker = prefabs:FindFirstChild("ColorPicker"):Clone()
-                    color_picker.Parent = scroller
+                    color_picker.Parent = tab_content
                     color_picker.ZIndex = color_picker.ZIndex + window_count * 10
                     local palette = color_picker:FindFirstChild("Palette")
                     local sample = color_picker:FindFirstChild("Sample")
@@ -1914,13 +1645,12 @@ function window_manager:AddWindow(title, settings)
                         saturation_slider.ImageColor3 = Color3.fromHSV(h, 1, 1)
                         pcall(callback, color)
                     end
-                    add_control_record("colorpicker", "ColorPicker", callback, {color = current_color})
                     return color_picker_data, color_picker
                 end
                 function tab_functions:AddHorizontalAlignment()
                     local alignment_data = {}
                     local alignment_container = prefabs:FindFirstChild("HorizontalAlignment"):Clone()
-                    alignment_container.Parent = scroller
+                    alignment_container.Parent = tab_content
                     function alignment_data:AddButton(...)
                         local results = {tab_functions:AddButton(...)}
                         local button = results[#results]
@@ -1941,7 +1671,7 @@ function window_manager:AddWindow(title, settings)
                     folder_content.ZIndex = folder_content.ZIndex + window_count * 10
                     folder_toggle.ZIndex = folder_toggle.ZIndex + window_count * 10
                     folder_button:GetChildren()[1].ZIndex = folder_button:GetChildren()[1].ZIndex + window_count * 10
-                    folder.Parent = scroller
+                    folder.Parent = tab_content
                     folder_button.Text = "      " .. name
                     local button_background = folder_button:GetChildren()[1]
                     button_background.ImageColor3 = settings.main_color
