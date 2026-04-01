@@ -925,7 +925,7 @@ function window_manager:AddWindow(title, settings)
     if typeof(settings.background) == "Color3" then
         settings.background = {settings.background}
     end
-    settings.background_transparency = settings.background_transparency or 0.1
+    settings.background_transparency = settings.background_transparency or 0
     if not settings.main_color then
         settings.main_color = settings.title_bar[1]
     end
@@ -969,7 +969,7 @@ function window_manager:AddWindow(title, settings)
         title_bar.BackgroundTransparency = settings.title_bar_transparency
         apply_gradient(title_bar, settings.title_bar, 0)
         window.ImageTransparency = settings.background_transparency
-        apply_gradient(window, settings.background, 45)
+        window.ImageColor3 = settings.background[1]
         local main_container = Instance.new("Frame")
         main_container.Name = "MainContainer"
         main_container.Parent = window
@@ -981,7 +981,7 @@ function window_manager:AddWindow(title, settings)
         sidebar.Name = "Sidebar"
         sidebar.Parent = main_container
         sidebar.BackgroundColor3 = Color3.new(0.05, 0.055, 0.06)
-        sidebar.BackgroundTransparency = 0.5
+        sidebar.BackgroundTransparency = 0.2
         sidebar.BorderSizePixel = 0
         sidebar.Size = UDim2.new(0, 130, 1, 0)
         sidebar.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -1018,11 +1018,14 @@ function window_manager:AddWindow(title, settings)
         local content_area = Instance.new("Frame")
         content_area.Name = "ContentArea"
         content_area.Parent = main_container
-        content_area.BackgroundColor3 = Color3.new(1, 1, 1)
-        content_area.BackgroundTransparency = 1
+        content_area.BackgroundColor3 = Color3.new(0.08, 0.09, 0.1)
+        content_area.BackgroundTransparency = 0.2
         content_area.Position = UDim2.new(0, 135, 0, 0)
         content_area.Size = UDim2.new(1, -140, 1, -10)
         content_area.ClipsDescendants = false
+        local content_corner = Instance.new("UICorner")
+        content_corner.CornerRadius = UDim.new(0, 6)
+        content_corner.Parent = content_area
         local content_holder = Instance.new("Frame")
         content_holder.Name = "TabContentHolder"
         content_holder.Parent = content_area
@@ -1032,7 +1035,6 @@ function window_manager:AddWindow(title, settings)
         local search_results_holder = Instance.new("ScrollingFrame")
         search_results_holder.Name = "SearchResults"
         search_results_holder.Parent = content_area
-        search_results_holder.BackgroundColor3 = Color3.new(1, 1, 1)
         search_results_holder.BackgroundTransparency = 1
         search_results_holder.BorderSizePixel = 0
         search_results_holder.Size = UDim2.new(1, 0, 1, 0)
